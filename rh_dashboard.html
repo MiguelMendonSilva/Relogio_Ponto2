@@ -1002,6 +1002,7 @@
             verificarStatusJornada();
             atualizarWidgets();
             setInterval(verificarStatusJornada, 60000);
+            
 
         });
     </script>
@@ -1015,8 +1016,10 @@
             const preferenciaSalva = localStorage.getItem(themeKey);
             if (preferenciaSalva === 'dark') { body.classList.add('dark-mode'); toggle.checked = true; }
             toggle.addEventListener('change', function () { if (this.checked) { body.classList.add('dark-mode'); localStorage.setItem(themeKey, 'dark'); } else { body.classList.remove('dark-mode'); localStorage.setItem(themeKey, 'light'); } });
+             btnLogout.addEventListener('click', (event) => { event.preventDefault(); localStorage.removeItem('sessao_usuario_atual'); window.location.href = 'index.html'; });
         })();
     </script>
 </body>
+
 
 </html>
