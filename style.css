@@ -1,0 +1,297 @@
+/* ================================================================ */
+/* === VARIÁVEIS DE TEMA (Claro e Escuro) === */
+/* ================================================================ */
+:root {
+    --cor-fundo-box: #ffffff;
+    --cor-texto-box: #333;
+    --cor-sombra-box: rgba(0, 123, 255, 0.9);
+    --cor-fundo-input: #f9f9f9;
+    --cor-borda-input: #ccc;
+    --cor-icone-input: #888;
+    --cor-texto-secundario: #555;
+}
+
+/* Define as cores do Modo Escuro */
+body.dark-mode {
+    --cor-fundo-box: #2c3e50;
+    --cor-texto-box: #ecf0f1;
+    --cor-sombra-box: rgba(0, 0, 0, 0.5);
+    --cor-fundo-input: #34495e;
+    --cor-borda-input: #566573;
+    --cor-icone-input: #bdc3c7;
+    --cor-texto-secundario: #bdc3c7;
+}
+
+/* ================================================================ */
+
+
+/*Estilo Global */
+body {
+    font-family: Arial;
+    background: linear-gradient(135deg, #000dbb, #07058b, #010152);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    flex-direction: column;
+    transition: background-color 0.3s, color 0.3s;
+    /* Transição suave */
+}
+
+.logo {
+    position: absolute;
+    top: 55px;
+    left: 15%;
+}
+
+.smart {
+    color: white;
+    font-size: 120px;
+    font-weight: bold;
+    line-height: 1;
+    margin: 0;
+}
+
+.ponto {
+    color: #3AB4FF;
+    font-size: 108px;
+    font-weight: bold;
+    padding-left: 80px;
+    line-height: 0.5;
+    margin: 0;
+}
+
+.slogan {
+    font-family: Arial, sans-serif;
+    font-size: 30px;
+    color: #fff;
+    font-style: italic;
+    margin-top: 10px;
+}
+
+/* Estilo Login*/
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    max-width: 400px;
+    padding: 20px;
+    box-sizing: border-box;
+    margin-left: auto;
+    margin-right: 190px;
+}
+
+.login-box {
+    background-color: var(--cor-fundo-box);
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 12px 12px 0px var(--cor-sombra-box);
+    text-align: center;
+    width: 100%;
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+h2 {
+    margin-bottom: 20px;
+    color: var(--cor-texto-box);
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    border: 1px solid var(--cor-borda-input);
+    border-radius: 30px;
+    padding: 10px;
+    background-color: var(--cor-fundo-input);
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.input-group i {
+    margin-left: 10px;
+    margin-right: 5px;
+    color: var(--cor-icone-input);
+}
+
+.input-group input {
+    border: none;
+    outline: none;
+    padding: 10px;
+    background-color: transparent;
+    font-size: 16px;
+    width: 100%;
+    color: var(--cor-texto-box);
+}
+
+.options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 15px;
+
+}
+
+.options label {
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 5;
+    color: var(--cor-texto-secundario);
+}
+
+.options a {
+    color: #0898f8;
+    text-decoration: none;
+    font-size: 12px;
+
+}
+
+.login-btn {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 30px;
+    background: linear-gradient(90deg, #2506ee, #0499fc);
+    color: #FFF;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3;
+}
+
+.login-btn:hover {
+    background: linear-gradient(90deg, #0499fc, #2506ee);
+}
+
+.login-btn:active {
+    background: #127ae9;
+}
+
+.signup-link {
+    margin-top: 20px;
+    font-size: 14px;
+    color: var(--cor-texto-secundario);
+}
+
+.signup-link a {
+    color: #0499fc;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.signup-link a:hover,
+.options a:hover {
+    color: #0499fc;
+}
+
+
+/* ================================================================ */
+/* === NOVOS ESTILOS (Interruptor de Tema) === */
+/* ================================================================ */
+.theme-switch-wrapper {
+    position: fixed;
+    top: 15px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    z-index: 1001;
+}
+
+.theme-switch-wrapper .icon {
+    color: #fff;
+    font-size: 18px;
+    margin: 0 8px;
+}
+
+.theme-switch {
+    display: inline-block;
+    height: 26px;
+    position: relative;
+    width: 50px;
+}
+
+.theme-switch input {
+    display: none;
+}
+
+.slider {
+    background-color: #555;
+    bottom: 0;
+    cursor: pointer;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    background-color: #fff;
+    bottom: 4px;
+    content: "";
+    height: 18px;
+    left: 4px;
+    position: absolute;
+    transition: .4s;
+    width: 18px;
+    border-radius: 50%;
+}
+
+input:checked+.slider {
+    background-color: #0499fc;
+}
+
+input:checked+.slider:before {
+    transform: translateX(24px);
+}
+
+/* ================================================================ */
+/* === CORREÇÃO 1: Fundo branco do Autofill === */
+/* ================================================================ */
+body.dark-mode input:-webkit-autofill,
+body.dark-mode input:-webkit-autofill:hover,
+body.dark-mode input:-webkit-autofill:focus,
+body.dark-mode input:-webkit-autofill:active {
+    /* Força o navegador a usar nossas cores de dark mode */
+    -webkit-box-shadow: 0 0 0 30px var(--cor-fundo-input) inset !important;
+    /* Força a cor do texto no autofill */
+    -webkit-text-fill-color: var(--cor-texto-box) !important;
+}
+
+
+/* Responsividade */
+@media (max-width: 900px) {
+    body {
+        flex-direction: column;
+        justify-content: center;
+        height: auto;
+        padding: 40px 20px;
+    }
+
+    .logo {
+        position: static;
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .smart {
+        font-size: 80px;
+    }
+
+    .ponto {
+        font-size: 70px;
+        padding-left: 0;
+    }
+
+    .slogan {
+        font-size: 24px;
+    }
+
+    .login-container {
+        margin: 0;
+        max-width: 100%;
+    }
+}

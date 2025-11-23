@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel do Gestor - Smart Ponto</title>
+    <link rel="stylesheet" href="style_dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" />
+</head>
+
+<body>
+
+    <div class="theme-switch-wrapper">
+        <i class="fas fa-sun icon"></i>
+        <label class="theme-switch">
+            <input type="checkbox" id="theme-toggle">
+            <span class="slider"></span>
+        </label>
+        <i class="fas fa-moon icon"></i>
+    </div>
+
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <h1><span class="smart">Smart</span><span class="ponto">Ponto</span></h1>
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="gestor_dashboard.html" class="active"><i class="fas fa-home"></i> Início</a></li>
+                <li><a href="#" id="btn-aprovar-solicitacoes"><i class="fas fa-check-square"></i> Aprovar
+                        Solicitações</a></li>
+                <li><a href="#" id="btn-registro-equipe"><i class="fas fa-users"></i> Ponto da Equipe</a></li>
+                <li><a href="#" id="btn-banco-equipe"><i class="fas fa-chart-bar"></i> Banco da Equipe</a></li>
+                <li><a href="#" id="btn-meu-banco-horas"><i class="fas fa-hourglass-half"></i> Meu Banco de Horas</a>
+                </li>
+            </ul>
+        </nav>
+
+        <div class="sidebar-logout">
+            <a href="#" id="btn-logout"><i class="fas fa-sign-out-alt"></i> Sair</a>
+        </div>
+    </aside>
+
+    <main class="main-content-area">
+
+        <div class="welcome-header">
+            <h1 id="slogan-nome-usuario">Painel do Gestor</h1>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="ponto-module-container grid-col-span-2">
+                <h3>Meu registro de hoje (<span id="data-hoje"></span>)</h3>
+                <div class="ponto-grid">
+                    <div class="ponto-card" id="card-entrada"><i
+                            class="fas fa-right-to-bracket"></i><label>Entrada</label><span
+                            class="ponto-previsto"></span><span id="time-entrada" class="ponto-time">--:--</span></div>
+                    <div class="ponto-card" id="card-pausa"><i class="fas fa-mug-saucer"></i><label>Pausa</label><span
+                            class="ponto-previsto"></span><span id="time-pausa" class="ponto-time">--:--</span></div>
+                    <div class="ponto-card" id="card-retorno"><i class="fas fa-laptop"></i><label>Retorno</label><span
+                            id="retorno-previsto" class="ponto-previsto"></span><span id="time-retorno"
+                            class="ponto-time">--:--</span></div>
+                    <div class="ponto-card" id="card-saida"><i
+                            class="fas fa-right-from-bracket"></i><label>Saída</label><span
+                            class="ponto-previsto"></span><span id="time-saida" class="ponto-time">--:--</span></div>
+                </div>
+                <div id="aviso-jornada" class="aviso-jornada" style="display: none;"></div>
+                <button class="ponto-btn" id="btn-bater-ponto"><i class="fas fa-clock"></i> Bater Ponto</button>
+                <p id="ponto-loading" class="ponto-loading-text" style="display: none;"><i
+                        class="fas fa-spinner fa-spin"></i> Obtendo localização, aguarde...</p>
+            </div>
+
+            <div class="summary-card">
+                <div class="summary-card-header"><i class="fas fa-briefcase"></i><span>Meu Saldo de Horas</span></div>
+                <div class="summary-card-body">
+                    <h2 class="value" id="widget-saldo-horas-pessoal">--:--</h2>
+                    <p class="label">Saldo Total Pessoal</p>
+                </div>
+            </div>
+
+            <div class="summary-card">
+                <div class="summary-card-header"><i class="fas fa-exclamation-triangle"></i><span>Ajustes da
+                        Equipe</span></div>
+                <div class="summary-card-body">
+                    <h2 class="value" id="widget-ajustes-pendentes">0</h2>
+                    <p class="label">Solicitações aguardando aprovação</p>
+                </div>
+            </div>
+
+            <div class="summary-card">
+                <div class="summary-card-header"><i class="fas fa-chart-bar"></i><span>Banco (Equipe)</span></div>
+                <div class="summary-card-body">
+                    <h2 class="value" id="widget-saldo-equipe">--:--</h2>
+                    <p class="label">Saldo Total da Equipe</p>
+                </div>
+            </div>
+
+            <div class="summary-card">
+                <div class="summary-card-header"><i class="fas fa-users"></i><span>Batidas Hoje (Equipe)</span></div>
+                <div class="summary-card-body">
+                    <h2 class="value" id="widget-batidas-hoje">0</h2>
+                    <p class="label">Registros de ponto hoje</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="solicitacoes-container" class="panel-container">
+            <h2>Aprovações Pendentes</h2>
+            <p>Abaixo estão as solicitações de ajuste da sua equipe aguardando aprovação.</p>
+            <table class="user-table">
+                <thead>
+                    <tr>
+                        <th>Solicitante</th>
+                        <th>Data</th>
+                        <th>Tipo</th>
+                        <th>Justificativa</th>
+                        <th style="width: 200px;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="solicitacoes-table-body"></tbody>
+            </table>
+            <div class="button-group"><button type="button" class="cancel-btn"
+                    id="btn-fechar-solicitacoes">Fechar</button></div>
+        </div>
+
+        <div id="registro-equipe-container" class="panel-container">
+            <h2>Registro de Ponto da Equipe</h2>
+            <p>Selecione "Todos" para um relatório geral ou um funcionário para filtrar.</p>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="select-funcionario-registro">Funcionário:</label>
+                    <select id="select-funcionario-registro">
+                        <option value="">Selecione...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="filtro-mes-registro">Mês de Referência:</label>
+                    <select id="filtro-mes-registro">
+                        <option value="">Selecione...</option>
+                    </select>
+                </div>
+            </div>
+            <hr>
+            <table class="user-table">
+                <thead id="registro-equipe-table-head"></thead>
+                <tbody id="registro-equipe-table-body"></tbody>
+            </table>
+            <div class="button-group"><button type="button" class="cancel-btn"
+                    id="btn-fechar-registro-equipe">Fechar</button></div>
+        </div>
+
+        <div id="banco-horas-equipe-container" class="panel-container">
+            <h2>Banco de Horas da Equipe</h2>
+            <p>Selecione "Todos" para um relatório geral ou um funcionário para filtrar.</p>
+            <div class="form-row">
+                <div class="form-group"><label for="select-funcionario-banco">Funcionário:</label><select
+                        id="select-funcionario-banco">
+                        <option value="">Selecione...</option>
+                    </select></div>
+            </div>
+            <div id="banco-horas-total-funcionario" class="banco-horas-total" style="display: none;">
+                <p>Saldo total do funcionário:</p>
+                <h3 id="saldo-total-banco-equipe">--:--</h3>
+            </div>
+            <hr>
+            <h3>Histórico de Saldo Diário</h3>
+            <table class="user-table">
+                <thead id="banco-horas-equipe-table-head"></thead>
+                <tbody id="banco-horas-equipe-table-body"></tbody>
+            </table>
+            <div class="button-group"><button type="button" class="cancel-btn"
+                    id="btn-fechar-banco-horas-equipe">Fechar</button></div>
+        </div>
+
+        <div id="meu-banco-horas-container" class="panel-container">
+            <h2>Meu Banco de Horas</h2>
+            <div class="banco-horas-total">
+                <p>Seu saldo total é de:</p>
+                <h3 id="saldo-total-banco">--:--</h3>
+            </div>
+            <hr>
+            <h3>Histórico de Saldo Diário</h3>
+            <table class="user-table">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Jornada Esperada</th>
+                        <th>Total Trabalhado</th>
+                        <th>Saldo do Dia</th>
+                    </tr>
+                </thead>
+                <tbody id="meu-banco-horas-table-body"></tbody>
+            </table>
+            <div class="button-group"><button type="button" class="cancel-btn"
+                    id="btn-fechar-meu-banco-horas">Fechar</button></div>
+        </div>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const dadosUsuario = JSON.parse(localStorage.getItem('sessao_usuario_atual'));
+            if (!dadosUsuario) { alert('Você não está logado!'); window.location.href = 'index.html'; return; } // Ajuste de caminho, se necessário use ../login_page/index.html
+
+            const dataHojeEl = document.getElementById('data-hoje');
+            const btnBaterPonto = document.getElementById('btn-bater-ponto');
+            const loadingText = document.getElementById('ponto-loading');
+            const retornoPrevistoEl = document.getElementById('retorno-previsto');
+            const avisoJornadaEl = document.getElementById('aviso-jornada');
+            const timeSpans = { entrada: document.getElementById('time-entrada'), pausa: document.getElementById('time-pausa'), retorno: document.getElementById('time-retorno'), saida: document.getElementById('time-saida') };
+            const cards = { entrada: document.getElementById('card-entrada'), pausa: document.getElementById('card-pausa'), retorno: document.getElementById('card-retorno'), saida: document.getElementById('card-saida') };
+
+            // Botões e Painéis
+            const btnAprovarSolicitacoes = document.getElementById('btn-aprovar-solicitacoes');
+            const btnRegistroEquipe = document.getElementById('btn-registro-equipe');
+            const btnBancoEquipe = document.getElementById('btn-banco-equipe');
+            const btnMeuBancoHoras = document.getElementById('btn-meu-banco-horas');
+            const btnLogout = document.getElementById('btn-logout');
+
+            const solicitacoesContainer = document.getElementById('solicitacoes-container');
+            const registroEquipeContainer = document.getElementById('registro-equipe-container');
+            const bancoHorasEquipeContainer = document.getElementById('banco-horas-equipe-container');
+            const meuBancoHorasContainer = document.getElementById('meu-banco-horas-container');
+
+            const btnFecharSolicitacoes = document.getElementById('btn-fechar-solicitacoes');
+            const btnFecharRegistroEquipe = document.getElementById('btn-fechar-registro-equipe');
+            const btnFecharBancoHorasEquipe = document.getElementById('btn-fechar-banco-horas-equipe');
+            const btnFecharMeuBancoHoras = document.getElementById('btn-fechar-meu-banco-horas');
+
+            const solicitacoesTableBody = document.getElementById('solicitacoes-table-body');
+            const selectFuncionarioRegistro = document.getElementById('select-funcionario-registro');
+            const filtroMesRegistro = document.getElementById('filtro-mes-registro');
+            const registroEquipeTableHead = document.getElementById('registro-equipe-table-head');
+            const registroEquipeTableBody = document.getElementById('registro-equipe-table-body');
+            const selectFuncionarioBanco = document.getElementById('select-funcionario-banco');
+            const bancoHorasEquipeTableHead = document.getElementById('banco-horas-equipe-table-head');
+            const bancoHorasEquipeTableBody = document.getElementById('banco-horas-equipe-table-body');
+            const saldoTotalBancoEquipeEl = document.getElementById('saldo-total-banco-equipe');
+            const bancoHorasTotalFuncionarioEl = document.getElementById('banco-horas-total-funcionario');
+            const meuBancoHorasTableBody = document.getElementById('meu-banco-horas-table-body');
+            const saldoTotalBancoEl = document.getElementById('saldo-total-banco');
+
+            const widgetSaldoHorasPessoal = document.getElementById('widget-saldo-horas-pessoal');
+            const widgetAjustesPendentes = document.getElementById('widget-ajustes-pendentes');
+            const widgetSaldoEquipe = document.getElementById('widget-saldo-equipe');
+            const widgetBatidasHoje = document.getElementById('widget-batidas-hoje');
+
+            const storageKeySolicitacoes = 'solicitacoes_smartponto';
+            const storageKeyUsuarios = 'usuarios_smartponto';
+            const storageKeyBatidas = 'batidas_smartponto';
+            const storageKeyJornadas = 'jornadas_smartponto';
+
+            const sloganNomeUsuario = document.getElementById('slogan-nome-usuario');
+            sloganNomeUsuario.textContent = `Bem-vindo(a), ${dadosUsuario.nome}`;
+            dataHojeEl.textContent = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+            function fecharTodosPaineis() {
+                solicitacoesContainer.style.display = 'none';
+                registroEquipeContainer.style.display = 'none';
+                bancoHorasEquipeContainer.style.display = 'none';
+                meuBancoHorasContainer.style.display = 'none';
+                document.querySelector('.dashboard-grid').style.display = 'grid';
+            }
+            function abrirPainel(painel) {
+                document.querySelector('.dashboard-grid').style.display = 'none';
+                fecharTodosPaineis();
+                painel.style.display = 'block';
+            }
+
+            function atualizarStatusSolicitacao(id, novoStatus) {
+                let solicitacoes = JSON.parse(localStorage.getItem(storageKeySolicitacoes)) || [];
+                const index = solicitacoes.findIndex(s => s.id == id);
+                if (index !== -1) {
+                    const solicitacao = solicitacoes[index];
+                    solicitacao.status = novoStatus;
+                    if (novoStatus === 'aprovado') {
+                        let tipoBatida = '';
+                        if (solicitacao.tipo.includes('entrada')) tipoBatida = 'entrada';
+                        else if (solicitacao.tipo.includes('pausa')) tipoBatida = 'pausa';
+                        else if (solicitacao.tipo.includes('retorno')) tipoBatida = 'retorno';
+                        else if (solicitacao.tipo.includes('saida')) tipoBatida = 'saida';
+
+                        if (tipoBatida) {
+                            const novaBatida = {
+                                emailUsuario: solicitacao.emailUsuario,
+                                data: solicitacao.data,
+                                tipo: tipoBatida,
+                                hora: solicitacao.horario,
+                                local: "Ajuste Aprovado (Gestor)"
+                            };
+                            let batidas = JSON.parse(localStorage.getItem(storageKeyBatidas)) || [];
+                            batidas = batidas.filter(b => !(b.data === novaBatida.data && b.tipo === novaBatida.tipo && b.emailUsuario === novaBatida.emailUsuario));
+                            batidas.push(novaBatida);
+                            localStorage.setItem(storageKeyBatidas, JSON.stringify(batidas));
+                        }
+                    }
+                }
+                localStorage.setItem(storageKeySolicitacoes, JSON.stringify(solicitacoes));
+                renderizarSolicitacoes();
+                atualizarWidgets();
+            }
+
+            function horaParaMinutos(horaStr) { if (!horaStr) return 0; const [horas, minutos] = horaStr.split(':').map(Number); return (horas * 60) + minutos; }
+            function minutosParaHora(minutosTotais) { const sinal = minutosTotais < 0 ? '-' : ''; const minAbs = Math.abs(minutosTotais); const horas = Math.floor(minAbs / 60); const minutos = minAbs % 60; const horasStr = String(horas).padStart(2, '0'); const minutosStr = String(minutos).padStart(2, '0'); return `${sinal}${horasStr}h ${minutosStr}m`; }
+
+            function renderizarSolicitacoes() {
+                let solicitacoes = JSON.parse(localStorage.getItem(storageKeySolicitacoes)) || [];
+                let usuarios = JSON.parse(localStorage.getItem(storageKeyUsuarios)) || [];
+                const usuariosPadrao = [{ email: "rh@smartponto.com.br", nome: "Admin RH (Padrão)", departamento: "Recursos Humanos" }, { email: "gestor@smartponto.com.br", nome: "Gestor (Padrão)", departamento: "Tecnologia da Informação" }, { email: "funcionario@smartponto.com.br", nome: "Funcionário (Padrão)", departamento: "Tecnologia da Informação" }];
+                const todosUsuarios = [...usuarios, ...usuariosPadrao];
+                const meuDepartamento = dadosUsuario.departamento;
+
+                // MODIFICAÇÃO: Se meuDepartamento for undefined, mostra TODAS as solicitações (Fallback)
+                const pendentes = solicitacoes.filter(s => {
+                    if (s.status !== 'pendente') return false;
+                    const solicitante = todosUsuarios.find(u => u.email === s.emailUsuario);
+                    // Se meuDepartamento existir, filtra. Se não, aceita tudo.
+                    if (meuDepartamento) {
+                        return solicitante && solicitante.departamento === meuDepartamento;
+                    } else {
+                        return true; // Mostra tudo
+                    }
+                });
+
+                solicitacoesTableBody.innerHTML = '';
+                if (pendentes.length === 0) { solicitacoesTableBody.innerHTML = '<tr><td colspan="5">Nenhuma solicitação pendente.</td></tr>'; return; }
+                pendentes.forEach(solicitacao => { const usuario = todosUsuarios.find(u => u.email === solicitacao.emailUsuario); const nomeUsuario = usuario ? usuario.nome : solicitacao.emailUsuario; const tr = document.createElement('tr'); tr.innerHTML = `<td>${nomeUsuario}</td><td>${new Date(solicitacao.data).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</td><td>${solicitacao.tipo.replace('_', ' ')}</td><td>${solicitacao.justificativa}</td><td><button class="approve-btn" data-id="${solicitacao.id}"><i class="fas fa-check"></i> Aprovar</button><button class="reject-btn" data-id="${solicitacao.id}"><i class="fas fa-times"></i> Recusar</button></td>`; solicitacoesTableBody.appendChild(tr); });
+            }
+
+            function popularDropdownFuncionarios(selectElement) {
+                let usuarios = JSON.parse(localStorage.getItem(storageKeyUsuarios)) || [];
+                const meuDepartamento = dadosUsuario.departamento;
+
+                // MODIFICAÇÃO: Fallback para mostrar todos se departamento for undefined
+                let funcionarios = [];
+                if (meuDepartamento) {
+                    funcionarios = usuarios.filter(u => u.email !== dadosUsuario.email && u.departamento === meuDepartamento);
+                } else {
+                    funcionarios = usuarios.filter(u => u.email !== dadosUsuario.email); // Mostra todos
+                }
+
+                selectElement.innerHTML = '<option value="">Selecione...</option>';
+                selectElement.innerHTML += '<option value="todos">Todos os Funcionários</option>';
+                if (funcionarios.length === 0) { selectElement.innerHTML = '<option value="">Nenhum funcionário na sua equipe.</option>'; return; }
+                funcionarios.forEach(func => { const option = document.createElement('option'); option.value = func.email; option.textContent = `${func.nome}`; selectElement.appendChild(option); });
+            }
+
+            // --- FUNÇÃO ATUALIZADA: Registro de Ponto com Filtro de Mês e Fallback ---
+            function renderizarHistoricoFuncionario(filtroEmail, mesFiltro = null) {
+                registroEquipeTableBody.innerHTML = '';
+                let batidas = JSON.parse(localStorage.getItem(storageKeyBatidas)) || [];
+                let usuarios = JSON.parse(localStorage.getItem(storageKeyUsuarios)) || [];
+                const usuariosPadrao = [{ email: "funcionario@smartponto.com.br", nome: "Funcionário (Padrão)", departamento: "Tecnologia da Informação" }];
+                const todosUsuarios = [...usuarios, ...usuariosPadrao];
+                const meuDepartamento = dadosUsuario.departamento;
+                const mapaEquipe = {};
+
+                // MODIFICAÇÃO: Fallback para mapa da equipe
+                todosUsuarios.forEach(u => {
+                    if (!meuDepartamento || u.departamento === meuDepartamento) { // Se não tem depto, pega todos
+                        mapaEquipe[u.email] = u.nome;
+                    }
+                });
+
+                let batidasFiltradas = [];
+                if (filtroEmail === 'todos') { batidasFiltradas = batidas.filter(b => mapaEquipe.hasOwnProperty(b.emailUsuario)); }
+                else { batidasFiltradas = batidas.filter(b => b.emailUsuario === filtroEmail); }
+
+                // Popula o filtro de mês
+                if (!mesFiltro) {
+                    const mesesDisponiveis = [...new Set(batidasFiltradas.map(b => b.data.substring(0, 7)))];
+                    mesesDisponiveis.sort().reverse();
+                    filtroMesRegistro.innerHTML = '';
+                    if (mesesDisponiveis.length === 0) { filtroMesRegistro.innerHTML = '<option value="">Sem dados</option>'; }
+                    else {
+                        mesesDisponiveis.forEach(mes => {
+                            const option = document.createElement('option');
+                            option.value = mes;
+                            const [ano, mesNum] = mes.split('-');
+                            option.textContent = `${mesNum}/${ano}`;
+                            filtroMesRegistro.appendChild(option);
+                        });
+                        mesFiltro = mesesDisponiveis[0];
+                        filtroMesRegistro.value = mesFiltro;
+                    }
+                }
+
+                if (batidasFiltradas.length === 0) { registroEquipeTableBody.innerHTML = `<tr><td colspan="${filtroEmail === 'todos' ? 6 : 5}">Nenhuma batida encontrada.</td></tr>`; return; }
+
+                const batidasPorDia = {};
+                batidasFiltradas.forEach(b => {
+                    if (!mesFiltro || b.data.substring(0, 7) === mesFiltro) {
+                        const chave = (filtroEmail === 'todos') ? `${b.data}_${b.emailUsuario}` : b.data;
+                        if (!batidasPorDia[chave]) {
+                            batidasPorDia[chave] = { nome: mapaEquipe[b.emailUsuario], data: b.data };
+                        }
+                        batidasPorDia[chave][b.tipo] = { hora: b.hora, local: b.local };
+                    }
+                });
+
+                const chavesOrdenadas = Object.keys(batidasPorDia).sort((a, b) => {
+                    const dataA = batidasPorDia[a].data;
+                    const dataB = batidasPorDia[b].data;
+                    return new Date(dataB) - new Date(dataA);
+                });
+
+                if (chavesOrdenadas.length === 0) {
+                    registroEquipeTableBody.innerHTML = `<tr><td colspan="${filtroEmail === 'todos' ? 6 : 5}">Nenhum registro neste mês.</td></tr>`;
+                } else {
+                    chavesOrdenadas.forEach(chave => {
+                        const dia = batidasPorDia[chave];
+                        const formatarCelula = (tipo) => { if (!dia[tipo]) return '--:--'; const local = dia[tipo].local ? dia[tipo].local.split(',')[0] : 'N/D'; return `${dia[tipo].hora}<br><small class="localizacao">${local}</small>`; };
+                        const tr = document.createElement('tr');
+                        if (filtroEmail === 'todos') {
+                            registroEquipeTableHead.innerHTML = `<tr><th>Funcionário</th><th>Data</th><th>Entrada</th><th>Pausa</th><th>Retorno</th><th>Saída</th></tr>`;
+                            tr.innerHTML = `<td>${dia.nome}</td><td>${new Date(dia.data + 'T12:00:00').toLocaleDateString('pt-BR')}</td><td>${formatarCelula('entrada')}</td><td>${formatarCelula('pausa')}</td><td>${formatarCelula('retorno')}</td><td>${formatarCelula('saida')}</td>`;
+                        } else {
+                            registroEquipeTableHead.innerHTML = `<tr><th>Data</th><th>Entrada</th><th>Pausa</th><th>Retorno</th><th>Saída</th></tr>`;
+                            tr.innerHTML = `<td>${new Date(dia.data + 'T12:00:00').toLocaleDateString('pt-BR')}</td><td>${formatarCelula('entrada')}</td><td>${formatarCelula('pausa')}</td><td>${formatarCelula('retorno')}</td><td>${formatarCelula('saida')}</td>`;
+                        }
+                        registroEquipeTableBody.appendChild(tr);
+                    });
+                }
+            }
+
+            function renderizarBancoHorasEquipe(filtroEmail) {
+                bancoHorasEquipeTableBody.innerHTML = '';
+                let usuarios = JSON.parse(localStorage.getItem(storageKeyUsuarios)) || [];
+                let jornadas = JSON.parse(localStorage.getItem(storageKeyJornadas)) || [];
+                let batidas = JSON.parse(localStorage.getItem(storageKeyBatidas)) || [];
+                const meuDepartamento = dadosUsuario.departamento;
+                let funcionariosParaProcessar = [];
+
+                // MODIFICAÇÃO: Fallback para filtro de funcionários
+                if (filtroEmail === 'todos') {
+                    if (meuDepartamento) {
+                        funcionariosParaProcessar = usuarios.filter(u => u.email !== dadosUsuario.email && u.departamento === meuDepartamento);
+                    } else {
+                        funcionariosParaProcessar = usuarios.filter(u => u.email !== dadosUsuario.email); // Fallback
+                    }
+                    bancoHorasTotalFuncionarioEl.style.display = 'none'; bancoHorasEquipeTableHead.innerHTML = `<tr><th>Funcionário</th><th>Saldo Total</th></tr>`;
+                } else {
+                    const func = usuarios.find(u => u.email === filtroEmail); if (func) funcionariosParaProcessar.push(func); bancoHorasTotalFuncionarioEl.style.display = 'block'; bancoHorasEquipeTableHead.innerHTML = `<tr><th>Data</th><th>Jornada Esperada</th><th>Total Trabalhado</th><th>Saldo do Dia</th></tr>`;
+                }
+
+                if (funcionariosParaProcessar.length === 0) { bancoHorasEquipeTableBody.innerHTML = `<tr><td colspan="${filtroEmail === 'todos' ? 2 : 4}">Nenhum funcionário encontrado.</td></tr>`; return; }
+                let saldoTotalGeralMinutos = 0;
+                funcionariosParaProcessar.forEach(func => {
+                    const jornadaDoFuncionario = jornadas.find(j => j.nome === func.jornada);
+                    const batidasFuncionario = batidas.filter(b => b.emailUsuario === func.email);
+                    let saldoTotalMinutos = 0;
+                    if (jornadaDoFuncionario && batidasFuncionario.length > 0) {
+                        const batidasPorDia = {};
+                        batidasFuncionario.forEach(b => { if (!batidasPorDia[b.data]) batidasPorDia[b.data] = {}; batidasPorDia[b.data][b.tipo] = b.hora; });
+                        Object.keys(batidasPorDia).forEach(data => {
+                            const dia = batidasPorDia[data];
+                            const dataObj = new Date(data + 'T12:00:00');
+                            const diaDaSemana = dataObj.getDay();
+                            let jornadaEsperadaMin = 0;
+                            if (diaDaSemana === 5) { jornadaEsperadaMin = (horaParaMinutos(jornadaDoFuncionario.fimSexta) - horaParaMinutos(jornadaDoFuncionario.inicioSexta)) - jornadaDoFuncionario.almoco; } else if (diaDaSemana !== 0 && diaDaSemana !== 6) { jornadaEsperadaMin = (horaParaMinutos(jornadaDoFuncionario.fim) - horaParaMinutos(jornadaDoFuncionario.inicio)) - jornadaDoFuncionario.almoco; }
+                            if (isNaN(jornadaEsperadaMin)) jornadaEsperadaMin = 0;
+                            let totalTrabalhadoMin = 0;
+                            if (dia.entrada && dia.saida) { const entrada = horaParaMinutos(dia.entrada); const saida = horaParaMinutos(dia.saida); const pausa = horaParaMinutos(dia.pausa); const retorno = horaParaMinutos(dia.retorno); const tempoPausa = (retorno > 0 && pausa > 0) ? (retorno - pausa) : 0; totalTrabalhadoMin = (saida - entrada) - tempoPausa; }
+                            const saldoDiaMin = totalTrabalhadoMin - jornadaEsperadaMin;
+                            saldoTotalMinutos += saldoDiaMin;
+                            if (filtroEmail !== 'todos') { const tr = document.createElement('tr'); const saldoDiaStr = minutosParaHora(saldoDiaMin); let saldoClasse = 'status-neutro'; if (saldoDiaMin > 0) saldoClasse = 'status-aprovado'; if (saldoDiaMin < 0) saldoClasse = 'status-recusado'; tr.innerHTML = `<td>${new Date(data + 'T12:00:00').toLocaleDateString('pt-BR')}</td><td>${jornadaEsperadaStr = (diaDaSemana === 5 ? j.fimSexta : j.fim)} (${minutosParaHora(jornadaEsperadaMin)})</td><td>${minutosParaHora(totalTrabalhadoMin)}</td><td><span class="status-badge ${saldoClasse}">${saldoDiaStr}</span></td>`; bancoHorasEquipeTableBody.appendChild(tr); }
+                        });
+                    }
+                    if (filtroEmail === 'todos') { const tr = document.createElement('tr'); const saldoTotalStr = minutosParaHora(saldoTotalMinutos); let saldoClasse = 'status-neutro'; if (saldoTotalMinutos > 0) saldoClasse = 'status-aprovado'; if (saldoTotalMinutos < 0) saldoClasse = 'status-recusado'; tr.innerHTML = `<td>${func.nome}</td><td><span class="status-badge ${saldoClasse}">${saldoTotalStr}</span></td>`; bancoHorasEquipeTableBody.appendChild(tr); }
+                    saldoTotalGeralMinutos = saldoTotalMinutos;
+                });
+                if (filtroEmail !== 'todos') { const saldoTotalStr = minutosParaHora(saldoTotalGeralMinutos); saldoTotalBancoEquipeEl.textContent = saldoTotalStr; if (saldoTotalGeralMinutos > 0) { saldoTotalBancoEquipeEl.className = 'saldo-positivo'; } else if (saldoTotalGeralMinutos < 0) { saldoTotalBancoEquipeEl.className = 'saldo-negativo'; } else { saldoTotalBancoEquipeEl.className = ''; } }
+            }
+
+            function renderizarMeuBancoHoras() {
+                let batidas = JSON.parse(localStorage.getItem(storageKeyBatidas)) || [];
+                const minhasBatidas = batidas.filter(b => b.emailUsuario === dadosUsuario.email);
+                meuBancoHorasTableBody.innerHTML = '';
+                if (minhasBatidas.length === 0) { meuBancoHorasTableBody.innerHTML = '<tr><td colspan="4">Nenhum histórico de batidas encontrado.</td></tr>'; saldoTotalBancoEl.textContent = '00h 00m'; return; }
+                const batidasPorDia = {};
+                minhasBatidas.forEach(b => { if (!batidasPorDia[b.data]) batidasPorDia[b.data] = {}; batidasPorDia[b.data][b.tipo] = b.hora; });
+                let saldoTotalMinutos = 0;
+                const datasOrdenadas = Object.keys(batidasPorDia).sort((a, b) => new Date(b) - new Date(a));
+                datasOrdenadas.forEach(data => {
+                    const dia = batidasPorDia[data];
+                    const dataObj = new Date(data + 'T12:00:00'); const diaDaSemana = dataObj.getDay();
+                    let jornadaEsperadaStr = ''; let jornadaEsperadaMin = 0; const j = dadosUsuario.jornada;
+                    if (j) {
+                        if (diaDaSemana === 5) { jornadaEsperadaStr = `${j.inicioSexta} - ${j.fimSexta}`; jornadaEsperadaMin = (horaParaMinutos(j.fimSexta) - horaParaMinutos(j.inicioSexta)) - j.almoco; } else if (diaDaSemana !== 0 && diaDaSemana !== 6) { jornadaEsperadaStr = `${j.inicio} - ${j.fim}`; jornadaEsperadaMin = (horaParaMinutos(j.fim) - horaParaMinutos(j.inicio)) - j.almoco; } else { jornadaEsperadaStr = 'Fim de Semana'; jornadaEsperadaMin = 0; }
+                    }
+                    if (isNaN(jornadaEsperadaMin)) jornadaEsperadaMin = 0;
+                    let totalTrabalhadoMin = 0;
+                    if (dia.entrada && dia.saida) { const entrada = horaParaMinutos(dia.entrada); const saida = horaParaMinutos(dia.saida); const pausa = horaParaMinutos(dia.pausa); const retorno = horaParaMinutos(dia.retorno); const tempoPausa = (retorno > 0 && pausa > 0) ? (retorno - pausa) : 0; totalTrabalhadoMin = (saida - entrada) - tempoPausa; }
+                    const saldoDiaMin = totalTrabalhadoMin - jornadaEsperadaMin;
+                    saldoTotalMinutos += saldoDiaMin;
+                    const tr = document.createElement('tr');
+                    const saldoDiaStr = minutosParaHora(saldoDiaMin);
+                    let saldoClasse = 'status-neutro';
+                    if (saldoDiaMin > 0) saldoClasse = 'status-aprovado';
+                    if (saldoDiaMin < 0) saldoClasse = 'status-recusado';
+                    tr.innerHTML = `<td>${new Date(data + 'T12:00:00').toLocaleDateString('pt-BR')}</td><td>${jornadaEsperadaStr} (${minutosParaHora(jornadaEsperadaMin)})</td><td>${minutosParaHora(totalTrabalhadoMin)}</td><td><span class="status-badge ${saldoClasse}">${saldoDiaStr}</span></td>`;
+                    meuBancoHorasTableBody.appendChild(tr);
+                });
+                const saldoTotalStr = minutosParaHora(saldoTotalMinutos);
+                saldoTotalBancoEl.textContent = saldoTotalStr;
+                if (saldoTotalMinutos > 0) { saldoTotalBancoEl.className = 'saldo-positivo'; } else if (saldoTotalMinutos < 0) { saldoTotalBancoEl.className = 'saldo-negativo'; } else { saldoTotalBancoEl.className = ''; }
+            }
+
+            function habilitarBotaoPonto() { btnBaterPonto.disabled = false; loadingText.style.display = 'none'; }
+            function verificarStatusJornada() { const agora = new Date(); const diaDaSemana = agora.getDay(); if (!dadosUsuario || !dadosUsuario.jornada) return; let horarioFimDaJornada; if (diaDaSemana === 5) { horarioFimDaJornada = dadosUsuario.jornada.fimSexta; } else { horarioFimDaJornada = dadosUsuario.jornada.fim; } if (!horarioFimDaJornada) return; const [fimHora, fimMinuto] = horarioFimDaJornada.split(':').map(Number); const horarioSaida = new Date(); horarioSaida.setHours(fimHora, fimMinuto, 0, 0); const estaEmHoraExtra = agora > horarioSaida; const naoBateuSaida = timeSpans.saida.textContent === '--:--'; const jaEntrou = timeSpans.entrada.textContent !== '--:--'; if (estaEmHoraExtra && naoBateuSaida && jaEntrou) { avisoJornadaEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Seu horário de trabalho regular terminou. A partir de agora, você está em hora extra.'; avisoJornadaEl.style.display = 'block'; } else { avisoJornadaEl.style.display = 'none'; } }
+            btnAprovarSolicitacoes.addEventListener('click', (event) => { event.preventDefault(); fecharTodosPaineis(); abrirPainel(solicitacoesContainer); renderizarSolicitacoes(); });
+            btnFecharSolicitacoes.addEventListener('click', fecharTodosPaineis);
+            btnRegistroEquipe.addEventListener('click', (event) => { event.preventDefault(); fecharTodosPaineis(); popularDropdownFuncionarios(selectFuncionarioRegistro); renderizarHistoricoFuncionario('todos'); selectFuncionarioRegistro.value = 'todos'; abrirPainel(registroEquipeContainer); });
+            btnFecharRegistroEquipe.addEventListener('click', fecharTodosPaineis);
+            selectFuncionarioRegistro.addEventListener('change', (event) => { renderizarHistoricoFuncionario(event.target.value); });
+            filtroMesRegistro.addEventListener('change', (event) => { renderizarHistoricoFuncionario(selectFuncionarioRegistro.value, event.target.value); });
+
+            btnBancoEquipe.addEventListener('click', (event) => { event.preventDefault(); fecharTodosPaineis(); popularDropdownFuncionarios(selectFuncionarioBanco); renderizarBancoHorasEquipe('todos'); selectFuncionarioBanco.value = 'todos'; abrirPainel(bancoHorasEquipeContainer); });
+            btnFecharBancoHorasEquipe.addEventListener('click', fecharTodosPaineis);
+            selectFuncionarioBanco.addEventListener('change', (event) => { renderizarBancoHorasEquipe(event.target.value); });
+            btnMeuBancoHoras.addEventListener('click', (event) => { event.preventDefault(); fecharTodosPaineis(); abrirPainel(meuBancoHorasContainer); renderizarMeuBancoHoras(); });
+            btnFecharMeuBancoHoras.addEventListener('click', fecharTodosPaineis);
+            btnLogout.addEventListener('click', (event) => { event.preventDefault(); localStorage.removeItem('sessao_usuario_atual'); window.location.href = '../login_page/index.html'; });
+            solicitacoesTableBody.addEventListener('click', (event) => { const approveButton = event.target.closest('.approve-btn'); const rejectButton = event.target.closest('.reject-btn'); if (approveButton) { atualizarStatusSolicitacao(approveButton.getAttribute('data-id'), 'aprovado'); } if (rejectButton) { atualizarStatusSolicitacao(rejectButton.getAttribute('data-id'), 'recusado'); } });
+            btnBaterPonto.addEventListener('click', () => {
+                let proximoPonto = null;
+                if (timeSpans.entrada.textContent === '--:--') proximoPonto = 'entrada';
+                else if (timeSpans.pausa.textContent === '--:--') proximoPonto = 'pausa';
+                else if (timeSpans.retorno.textContent === '--:--') proximoPonto = 'retorno';
+                else if (timeSpans.saida.textContent === '--:--') proximoPonto = 'saida';
+                else { alert('Todos os seus pontos de hoje já foram registrados!'); return; }
+                btnBaterPonto.disabled = true;
+                loadingText.style.display = 'block';
+                const agora = new Date();
+                const horaFormatada = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                const dataFormatada = new Date(agora.getTime() - (agora.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+                if (!navigator.geolocation) { alert('Geolocalização não é suportada pelo seu navegador.'); habilitarBotaoPonto(); return; }
+                navigator.geolocation.getCurrentPosition(
+                    async (position) => {
+                        const latitude = position.coords.latitude;
+                        const longitude = position.coords.longitude;
+                        let localizacaoFormatada = `Lat/Long: ${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+                        try {
+                            const urlApi = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18`;
+                            const response = await fetch(urlApi);
+                            const data = await response.json();
+                            if (data && data.address) {
+                                const rua = data.address.road || data.address.pedestrian || "";
+                                const bairro = data.address.suburb || data.address.neighbourhood || "";
+                                const cidade = data.address.city || data.address.town || "";
+                                if (rua && bairro) localizacaoFormatada = `${rua}, ${bairro} - ${cidade}`;
+                                else if (data.display_name) localizacaoFormatada = data.display_name;
+                            }
+                        } catch (error) { console.error("Erro ao buscar endereço:", error); }
+                        timeSpans[proximoPonto].textContent = horaFormatada;
+                        cards[proximoPonto].classList.add('completed');
+                        const batida = { emailUsuario: dadosUsuario.email, data: dataFormatada, tipo: proximoPonto, hora: horaFormatada, local: localizacaoFormatada };
+                        let batidas = JSON.parse(localStorage.getItem(storageKeyBatidas)) || [];
+                        const jaExiste = batidas.find(b => b.data === dataFormatada && b.tipo === proximoPonto && b.emailUsuario === dadosUsuario.email);
+                        if (!jaExiste) { batidas.push(batida); localStorage.setItem(storageKeyBatidas, JSON.stringify(batidas)); }
+                        if (proximoPonto === 'pausa') { const horaRetorno = new Date(agora.getTime() + dadosUsuario.jornada.almoco * 60000); retornoPrevistoEl.textContent = `Previsto: ${horaRetorno.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`; }
+                        if (proximoPonto === 'retorno') { retornoPrevistoEl.textContent = ""; }
+                        alert(`Ponto de ${proximoPonto.toUpperCase()} registrado!\n\nHora: ${horaFormatada}\nLocalização: ${localizacaoFormatada}`);
+                        habilitarBotaoPonto();
+                        verificarStatusJornada();
+                        atualizarWidgets();
+                    },
+                    (error) => { alert('Erro ao obter localização. Ponto não registrado!'); habilitarBotaoPonto(); },
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                );
+            });
+
+            function carregarBatidasDoDia() { const agora = new Date(); const dataFormatada = new Date(agora.getTime() - (agora.getTimezoneOffset() * 60000)).toISOString().split('T')[0]; let batidas = JSON.parse(localStorage.getItem(storageKeyBatidas)) || []; const minhasBatidasHoje = batidas.filter(b => b.emailUsuario === dadosUsuario.email && b.data === dataFormatada); minhasBatidasHoje.forEach(batida => { if (timeSpans[batida.tipo]) { timeSpans[batida.tipo].textContent = batida.hora; cards[batida.tipo].classList.add('completed'); } }); }
+            function atualizarWidgets() {
+                let solicitacoes = JSON.parse(localStorage.getItem(storageKeySolicitacoes)) || [];
+                let usuarios = JSON.parse(localStorage.getItem(storageKeyUsuarios)) || [];
+                const todosUsuarios = [...usuarios];
+                const meuDepartamento = dadosUsuario.departamento;
+                // MODIFICAÇÃO: Fallback para widgets se dept for undefined
+                const pendentes = solicitacoes.filter(s => {
+                    if (s.status !== 'pendente') return false;
+                    const solicitante = todosUsuarios.find(u => u.email === s.emailUsuario);
+                    if (meuDepartamento) return solicitante && solicitante.departamento === meuDepartamento;
+                    return true; // Mostra tudo se sem departamento
+                });
+                widgetAjustesPendentes.textContent = pendentes.length;
+
+                let batidas = JSON.parse(localStorage.getItem(storageKeyBatidas)) || [];
+                const minhasBatidas = batidas.filter(b => b.emailUsuario === dadosUsuario.email);
+                let saldoTotalMinutos = 0;
+                if (minhasBatidas.length > 0) { const batidasPorDia = {}; minhasBatidas.forEach(b => { if (!batidasPorDia[b.data]) batidasPorDia[b.data] = {}; batidasPorDia[b.data][b.tipo] = b.hora; }); Object.keys(batidasPorDia).forEach(data => { const dia = batidasPorDia[data]; const dataObj = new Date(data + 'T12:00:00'); const diaDaSemana = dataObj.getDay(); let jornadaEsperadaMin = 0; const j = dadosUsuario.jornada; if (!j) return; if (diaDaSemana === 5) { jornadaEsperadaMin = (horaParaMinutos(j.fimSexta) - horaParaMinutos(j.inicioSexta)) - j.almoco; } else if (diaDaSemana !== 0 && diaDaSemana !== 6) { jornadaEsperadaMin = (horaParaMinutos(j.fim) - horaParaMinutos(j.inicio)) - j.almoco; } if (isNaN(jornadaEsperadaMin)) jornadaEsperadaMin = 0; let totalTrabalhadoMin = 0; if (dia.entrada && dia.saida) { const entrada = horaParaMinutos(dia.entrada); const saida = horaParaMinutos(dia.saida); const pausa = horaParaMinutos(dia.pausa); const retorno = horaParaMinutos(dia.retorno); const tempoPausa = (retorno > 0 && pausa > 0) ? (retorno - pausa) : 0; totalTrabalhadoMin = (saida - entrada) - tempoPausa; } saldoTotalMinutos += (totalTrabalhadoMin - jornadaEsperadaMin); }); }
+                widgetSaldoHorasPessoal.textContent = minutosParaHora(saldoTotalMinutos);
+                if (saldoTotalMinutos > 0) { widgetSaldoHorasPessoal.className = 'value saldo-positivo'; } else if (saldoTotalMinutos < 0) { widgetSaldoHorasPessoal.className = 'value saldo-negativo'; } else { widgetSaldoHorasPessoal.className = 'value'; }
+
+                let jornadas = JSON.parse(localStorage.getItem(storageKeyJornadas)) || [];
+                let funcionariosEquipe = [];
+                if (meuDepartamento) {
+                    funcionariosEquipe = usuarios.filter(u => u.email !== dadosUsuario.email && u.departamento === meuDepartamento);
+                } else {
+                    funcionariosEquipe = usuarios.filter(u => u.email !== dadosUsuario.email);
+                }
+                let saldoTotalEquipeMinutos = 0;
+                funcionariosEquipe.forEach(func => { const jornadaDoFuncionario = jornadas.find(j => j.nome === func.jornada); const batidasFuncionario = batidas.filter(b => b.emailUsuario === func.email); if (jornadaDoFuncionario && batidasFuncionario.length > 0) { const batidasPorDia = {}; batidasFuncionario.forEach(b => { if (!batidasPorDia[b.data]) batidasPorDia[b.data] = {}; batidasPorDia[b.data][b.tipo] = b.hora; }); Object.keys(batidasPorDia).forEach(data => { const dia = batidasPorDia[data]; const dataObj = new Date(data + 'T12:00:00'); const diaDaSemana = dataObj.getDay(); let jornadaEsperadaMin = 0; if (diaDaSemana === 5) { jornadaEsperadaMin = (horaParaMinutos(jornadaDoFuncionario.fimSexta) - horaParaMinutos(jornadaDoFuncionario.inicioSexta)) - jornadaDoFuncionario.almoco; } else if (diaDaSemana !== 0 && diaDaSemana !== 6) { jornadaEsperadaMin = (horaParaMinutos(jornadaDoFuncionario.fim) - horaParaMinutos(jornadaDoFuncionario.inicio)) - jornadaDoFuncionario.almoco; } if (isNaN(jornadaEsperadaMin)) jornadaEsperadaMin = 0; let totalTrabalhadoMin = 0; if (dia.entrada && dia.saida) { const entrada = horaParaMinutos(dia.entrada); const saida = horaParaMinutos(dia.saida); const pausa = horaParaMinutos(dia.pausa); const retorno = horaParaMinutos(dia.retorno); const tempoPausa = (retorno > 0 && pausa > 0) ? (retorno - pausa) : 0; totalTrabalhadoMin = (saida - entrada) - tempoPausa; } saldoTotalEquipeMinutos += (totalTrabalhadoMin - jornadaEsperadaMin); }); } });
+                widgetSaldoEquipe.textContent = minutosParaHora(saldoTotalEquipeMinutos);
+                if (saldoTotalEquipeMinutos > 0) { widgetSaldoEquipe.className = 'value saldo-positivo'; } else if (saldoTotalEquipeMinutos < 0) { widgetSaldoEquipe.className = 'value saldo-negativo'; } else { widgetSaldoEquipe.className = 'value'; }
+
+                const agora = new Date(); const dataFormatada = new Date(agora.getTime() - (agora.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+                const mapaEquipe = {};
+                todosUsuarios.forEach(u => { if (!meuDepartamento || u.departamento === meuDepartamento) { mapaEquipe[u.email] = u.nome; } });
+                const batidasHojeEquipe = batidas.filter(b => mapaEquipe.hasOwnProperty(b.emailUsuario) && b.data === dataFormatada);
+                widgetBatidasHoje.textContent = batidasHojeEquipe.length;
+            }
+
+            carregarBatidasDoDia();
+            verificarStatusJornada();
+            atualizarWidgets();
+            setInterval(verificarStatusJornada, 60000);
+        });
+    </script>
+
+    <script>
+        (function () {
+            const toggle = document.getElementById('theme-toggle');
+            const body = document.body;
+            const themeKey = 'theme_preference_smartponto';
+            const preferenciaSalva = localStorage.getItem(themeKey);
+            if (preferenciaSalva === 'dark') { body.classList.add('dark-mode'); toggle.checked = true; }
+            toggle.addEventListener('change', function () { if (this.checked) { body.classList.add('dark-mode'); localStorage.setItem(themeKey, 'dark'); } else { body.classList.remove('dark-mode'); localStorage.setItem(themeKey, 'light'); } });
+            const btnLogout = document.getElementById('btn-logout');
+            btnLogout.addEventListener('click', (event) => { event.preventDefault(); localStorage.removeItem('sessao_usuario_atual'); window.location.href = '../login_page/index.html'; });
+        })();
+    </script>
+</body>
+
+</html>

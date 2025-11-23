@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal do Colaborador - Smart Ponto</title>
+    <link rel="stylesheet" href="style_dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" />
+</head>
+
+<body>
+
+    <div class="theme-switch-wrapper">
+        <i class="fas fa-sun icon"></i>
+        <label class="theme-switch">
+            <input type="checkbox" id="theme-toggle">
+            <span class="slider"></span>
+        </label>
+        <i class="fas fa-moon icon"></i>
+    </div>
+
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <h1><span class="smart">Smart</span><span class="ponto">Ponto</span></h1>
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="funcionario_dashboard.html" class="active"><i class="fas fa-home"></i> Início</a></li>
+                <li><a href="#" id="btn-minha-folha"><i class="fas fa-file-alt"></i> Minha Folha</a></li>
+                <li><a href="#" id="btn-solicitar-ajuste"><i class="fas fa-edit"></i> Solicitar Ajustes</a></li>
+                <li><a href="#" id="btn-banco-horas"><i class="fas fa-hourglass-half"></i> Meu Banco de Horas</a></li>
+            </ul>
+        </nav>
+
+        <div class="sidebar-logout">
+            <a href="#" id="btn-logout"><i class="fas fa-sign-out-alt"></i> Sair</a>
+        </div>
+    </aside>
+
+    <main class="main-content-area">
+
+        <div class="welcome-header">
+            <h1 id="slogan-nome-usuario">Portal do Colaborador</h1>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="ponto-module-container grid-col-span-2">
+                <h3>Meu registro de hoje (<span id="data-hoje"></span>)</h3>
+                <div class="ponto-grid">
+                    <div class="ponto-card" id="card-entrada"><i
+                            class="fas fa-right-to-bracket"></i><label>Entrada</label><span
+                            class="ponto-previsto"></span><span id="time-entrada" class="ponto-time">--:--</span></div>
+                    <div class="ponto-card" id="card-pausa"><i class="fas fa-mug-saucer"></i><label>Pausa</label><span
+                            class="ponto-previsto"></span><span id="time-pausa" class="ponto-time">--:--</span></div>
+                    <div class="ponto-card" id="card-retorno"><i class="fas fa-laptop"></i><label>Retorno</label><span
+                            id="retorno-previsto" class="ponto-previsto"></span><span id="time-retorno"
+                            class="ponto-time">--:--</span></div>
+                    <div class="ponto-card" id="card-saida"><i
+                            class="fas fa-right-from-bracket"></i><label>Saída</label><span
+                            class="ponto-previsto"></span><span id="time-saida" class="ponto-time">--:--</span></div>
+                </div>
+                <div id="aviso-jornada" class="aviso-jornada" style="display: none;"></div>
+                <button class="ponto-btn" id="btn-bater-ponto"><i class="fas fa-clock"></i> Bater Ponto</button>
+                <p id="ponto-loading" class="ponto-loading-text" style="display: none;"><i
+                        class="fas fa-spinner fa-spin"></i> Obtendo localização, aguarde...</p>
+            </div>
+
+            <div class="summary-card">
+                <div class="summary-card-header"><i class="fas fa-briefcase"></i><span>Meu Saldo de Horas</span></div>
+                <div class="summary-card-body">
+                    <h2 class="value" id="widget-saldo-horas">--:--</h2>
+                    <p class="label">Saldo Total Acumulado</p>
+                </div>
+            </div>
+
+            <div class="summary-card">
+                <div class="summary-card-header"><i class="fas fa-exclamation-triangle"></i><span>Ajustes
+                        Pendentes</span></div>
+                <div class="summary-card-body">
+                    <h2 class="value" id="widget-ajustes-pendentes">0</h2>
+                    <p class="label">Solicitações aguardando aprovação</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="solicitacao-container" class="panel-container">
+            <h2>Solicitar Ajuste de Ponto</h2>
+            <p>Preencha os dados abaixo para enviar um pedido de ajuste ao seu gestor.</p>
+            <form id="form-solicitacao">
+                <div class="form-row">
+                    <div class="form-group"><label for="ajuste-data">Data do Ponto:</label><input type="date"
+                            id="ajuste-data" required></div>
+                    <div class="form-group"><label for="ajuste-tipo">Tipo de Ajuste:</label><select id="ajuste-tipo"
+                            required>
+                            <option value="">Selecione...</option>
+                            <option value="esqueci_entrada">Esqueci de bater a Entrada</option>
+                            <option value="esqueci_pausa">Esqueci de bater a Pausa</option>
+                            <option value="esqueci_retorno">Esqueci de bater o Retorno</option>
+                            <option value="esqueci_saida">Esqueci de bater a Saída</option>
+                            <option value="corrigir_horario">Corrigir um horário batido</option>
+                            <option value="outros">Outros</option>
+                        </select></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label for="ajuste-horario">Horário Correto (se aplicável):</label><input
+                            type="time" id="ajuste-horario"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label for="ajuste-justificativa">Justificativa:</label><textarea
+                            id="ajuste-justificativa" rows="4" placeholder="Explique o motivo do ajuste..."
+                            required></textarea></div>
+                </div>
+                <div class="button-group"><button type="button" class="cancel-btn"
+                        id="btn-fechar-solicitacao">Cancelar</button><button type="submit" class="submit-btn"><i
+                            class="fas fa-paper-plane"></i> Enviar Solicitação</button></div>
+            </form>
+        </div>
+
+        <div id="minha-folha-container" class="panel-container">
+            <h2>Minha Folha de Ponto</h2>
+            <p>Visualize seu espelho de ponto detalhado.</p>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="filtro-mes-folha">Selecione o Mês:</label>
+                    <select id="filtro-mes-folha">
+                        <option value="">Carregando meses...</option>
+                    </select>
+                </div>
+            </div>
+
+            <h3>Espelho de Ponto</h3>
+            <table class="user-table">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Entrada</th>
+                        <th>Pausa</th>
+                        <th>Retorno</th>
+                        <th>Saída</th>
+                    </tr>
+                </thead>
+                <tbody id="minha-folha-batidas-body"></tbody>
+            </table>
+
+            <br>
+            <hr><br>
+
+            <h3>Status das Solicitações</h3>
+            <table class="user-table">
+                <thead>
+                    <tr>
+                        <th>Data do Pedido</th>
+                        <th>Tipo</th>
+                        <th>Justificativa</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="minha-folha-status-body"></tbody>
+            </table>
+
+            <div class="button-group"><button type="button" class="cancel-btn"
+                    id="btn-fechar-minha-folha">Fechar</button></div>
+        </div>
+
+        <div id="banco-horas-container" class="panel-container">
+            <h2>Meu Banco de Horas</h2>
+            <div class="banco-horas-total">
+                <p>Seu saldo total é de:</p>
+                <h3 id="saldo-total-banco">--:--</h3>
+            </div>
+            <hr>
+            <h3>Histórico de Saldo Diário</h3>
+            <table class="user-table">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Jornada Esperada</th>
+                        <th>Total Trabalhado</th>
+                        <th>Saldo do Dia</th>
+                    </tr>
+                </thead>
+                <tbody id="banco-horas-table-body"></tbody>
+            </table>
+            <div class="button-group"><button type="button" class="cancel-btn"
+                    id="btn-fechar-banco-horas">Fechar</button></div>
+        </div>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const dadosUsuario = JSON.parse(localStorage.getItem('sessao_usuario_atual'));
+            if (!dadosUsuario) { alert('Você não está logado!'); window.location.href = '../index.html'; return; }
+
+            const dataHojeEl = document.getElementById('data-hoje');
+            const btnBaterPonto = document.getElementById('btn-bater-ponto');
+            const loadingText = document.getElementById('ponto-loading');
+            const retornoPrevistoEl = document.getElementById('retorno-previsto');
+            const avisoJornadaEl = document.getElementById('aviso-jornada');
+            const timeSpans = { entrada: document.getElementById('time-entrada'), pausa: document.getElementById('time-pausa'), retorno: document.getElementById('time-retorno'), saida: document.getElementById('time-saida') };
+            const cards = { entrada: document.getElementById('card-entrada'), pausa: document.getElementById('card-pausa'), retorno: document.getElementById('card-retorno'), saida: document.getElementById('card-saida') };
+
+            const solicitacaoContainer = document.getElementById('solicitacao-container');
+            const minhaFolhaContainer = document.getElementById('minha-folha-container');
+            const bancoHorasContainer = document.getElementById('banco-horas-container');
+
+            const btnSolicitarAjuste = document.getElementById('btn-solicitar-ajuste');
+            const btnMinhaFolha = document.getElementById('btn-minha-folha');
+            const btnBancoHoras = document.getElementById('btn-banco-horas');
+            const btnFecharSolicitacao = document.getElementById('btn-fechar-solicitacao');
+            const btnFecharMinhaFolha = document.getElementById('btn-fechar-minha-folha');
+            const btnFecharBancoHoras = document.getElementById('btn-fechar-banco-horas');
+
+            const formSolicitacao = document.getElementById('form-solicitacao');
+            const minhaFolhaTableBody = document.getElementById('minha-folha-batidas-body'); // Tabela Principal
+            const minhaFolhaStatusBody = document.getElementById('minha-folha-status-body'); // Tabela Status
+            const filtroMesFolha = document.getElementById('filtro-mes-folha'); // Filtro de Mês
+
+            const bancoHorasTableBody = document.getElementById('banco-horas-table-body');
+            const saldoTotalBancoEl = document.getElementById('saldo-total-banco');
+            const widgetSaldoHoras = document.getElementById('widget-saldo-horas');
+            const widgetAjustesPendentes = document.getElementById('widget-ajustes-pendentes');
+
+            const storageKeySolicitacoes = 'solicitacoes_smartponto';
+            const storageKeyBatidas = 'batidas_smartponto';
+
+            const sloganNomeUsuario = document.getElementById('slogan-nome-usuario');
+            sloganNomeUsuario.textContent = `Bem-vindo(a), ${dadosUsuario.nome}`;
+            dataHojeEl.textContent = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+            function fecharTodosPaineis() {
+                solicitacaoContainer.style.display = 'none';
+                minhaFolhaContainer.style.display = 'none';
+                bancoHorasContainer.style.display = 'none';
+                document.querySelector('.dashboard-grid').style.display = 'grid';
+            }
+            function horaParaMinutos(horaStr) { if (!horaStr) return 0; const [horas, minutos] = horaStr.split(':').map(Number); return (horas * 60) + minutos; }
+            function minutosParaHora(minutosTotais) { const sinal = minutosTotais < 0 ? '-' : ''; const minAbs = Math.abs(minutosTotais); const horas = Math.floor(minAbs / 60); const minutos = minAbs % 60; const horasStr = String(horas).padStart(2, '0'); const minutosStr = String(minutos).padStart(2, '0'); return `${sinal}${horasStr}h ${minutosStr}m`; }
+
+            // --- Função "Minha Folha" (Com Espelho de Ponto e Filtro) ---
+            function renderizarMinhaFolha(mesFiltro = null) {
+                let batidas = JSON.parse(localStorage.getItem(storageKeyBatidas)) || [];
+                let solicitacoes = JSON.parse(localStorage.getItem(storageKeySolicitacoes)) || [];
+
+                // Filtra dados do usuário
+                const minhasBatidas = batidas.filter(b => b.emailUsuario === dadosUsuario.email);
+                const minhasSolicitacoes = solicitacoes.filter(s => s.emailUsuario === dadosUsuario.email);
+
+                // 1. Popula o Dropdown de Meses (apenas se não foi passado um filtro, para não resetar a seleção)
+                if (!mesFiltro) {
+                    const mesesDisponiveis = [...new Set(minhasBatidas.map(b => b.data.substring(0, 7)))];
+                    mesesDisponiveis.sort().reverse(); // Meses mais recentes primeiro
+
+                    filtroMesFolha.innerHTML = '';
+                    if (mesesDisponiveis.length === 0) {
+                        filtroMesFolha.innerHTML = '<option value="">Sem dados</option>';
+                    } else {
+                        mesesDisponiveis.forEach(mes => {
+                            const option = document.createElement('option');
+                            option.value = mes;
+                            // Formata para "MM/AAAA"
+                            const [ano, mesNum] = mes.split('-');
+                            option.textContent = `${mesNum}/${ano}`;
+                            filtroMesFolha.appendChild(option);
+                        });
+                        // Seleciona o mês mais recente por padrão
+                        mesFiltro = mesesDisponiveis[0];
+                        filtroMesFolha.value = mesFiltro;
+                    }
+                }
+
+                // 2. Renderiza o Espelho de Ponto (Tabela)
+                minhaFolhaTableBody.innerHTML = '';
+                if (!mesFiltro || minhasBatidas.length === 0) {
+                    minhaFolhaTableBody.innerHTML = '<tr><td colspan="5">Nenhum registro encontrado.</td></tr>';
+                } else {
+                    // Agrupa batidas por dia
+                    const batidasPorDia = {};
+                    minhasBatidas.forEach(b => {
+                        if (b.data.substring(0, 7) === mesFiltro) { // Filtra pelo mês selecionado
+                            if (!batidasPorDia[b.data]) batidasPorDia[b.data] = {};
+                            batidasPorDia[b.data][b.tipo] = { hora: b.hora, local: b.local };
+                        }
+                    });
+
+                    const datasOrdenadas = Object.keys(batidasPorDia).sort((a, b) => new Date(b) - new Date(a));
+
+                    if (datasOrdenadas.length === 0) {
+                        minhaFolhaTableBody.innerHTML = '<tr><td colspan="5">Nenhum registro neste mês.</td></tr>';
+                    } else {
+                        datasOrdenadas.forEach(data => {
+                            const dia = batidasPorDia[data];
+
+                            const formatarCelula = (tipo) => {
+                                if (!dia[tipo]) return '--:--';
+                                const local = dia[tipo].local ? dia[tipo].local.split(',')[0] : 'N/D';
+                                return `${dia[tipo].hora}<br><small class="localizacao" style="font-size: 11px; color: #777;">${local}</small>`;
+                            };
+
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = `
+                                <td>${new Date(data + 'T12:00:00').toLocaleDateString('pt-BR')}</td>
+                                <td>${formatarCelula('entrada')}</td>
+                                <td>${formatarCelula('pausa')}</td>
+                                <td>${formatarCelula('retorno')}</td>
+                                <td>${formatarCelula('saida')}</td>
+                            `;
+                            minhaFolhaTableBody.appendChild(tr);
+                        });
+                    }
+                }
+
+                // 3. Renderiza Status das Solicitações
+                minhaFolhaStatusBody.innerHTML = '';
+                if (minhasSolicitacoes.length === 0) {
+                    minhaFolhaStatusBody.innerHTML = '<tr><td colspan="4">Nenhuma solicitação de ajuste feita.</td></tr>';
+                } else {
+                    minhasSolicitacoes.sort((a, b) => b.id - a.id);
+                    minhasSolicitacoes.forEach(s => {
+                        const tr = document.createElement('tr');
+                        const statusClass = `status-badge status-${s.status}`;
+                        tr.innerHTML = `<td>${new Date(s.id).toLocaleDateString('pt-BR')}</td><td>${s.tipo.replace('_', ' ')}</td><td>${s.justificativa}</td><td><span class="${statusClass}">${s.status}</span></td>`;
+                        minhaFolhaStatusBody.appendChild(tr);
+                    });
+                }
+            }
+
+            // ... (RESTO DO CÓDIGO MANTIDO IGUAL: renderizarBancoHoras, GPS, etc.) ...
+
+            function renderizarBancoHoras() {
+                let batidas = JSON.parse(localStorage.getItem(storageKeyBatidas)) || [];
+                const minhasBatidas = batidas.filter(b => b.emailUsuario === dadosUsuario.email);
+                bancoHorasTableBody.innerHTML = '';
+                if (minhasBatidas.length === 0) {
+                    bancoHorasTableBody.innerHTML = '<tr><td colspan="4">Nenhum histórico de batidas encontrado.</td></tr>';
+                    saldoTotalBancoEl.textContent = '00h 00m';
+                    return;
+                }
+                const batidasPorDia = {};
+                minhasBatidas.forEach(b => {
+                    if (!batidasPorDia[b.data]) batidasPorDia[b.data] = {};
+                    batidasPorDia[b.data][b.tipo] = b.hora;
+                });
+                let saldoTotalMinutos = 0;
+                const datasOrdenadas = Object.keys(batidasPorDia).sort((a, b) => new Date(b) - new Date(a));
+                datasOrdenadas.forEach(data => {
+                    const dia = batidasPorDia[data];
+                    const dataObj = new Date(data + 'T12:00:00');
+                    const diaDaSemana = dataObj.getDay();
+                    let jornadaEsperadaStr = '';
+                    let jornadaEsperadaMin = 0;
+                    const j = dadosUsuario.jornada;
+                    if (!j) { console.error("Jornada não encontrada."); return; }
+                    if (diaDaSemana === 5) {
+                        jornadaEsperadaStr = `${j.inicioSexta} - ${j.fimSexta}`;
+                        jornadaEsperadaMin = (horaParaMinutos(j.fimSexta) - horaParaMinutos(j.inicioSexta)) - j.almoco;
+                    } else if (diaDaSemana !== 0 && diaDaSemana !== 6) {
+                        jornadaEsperadaStr = `${j.inicio} - ${j.fim}`;
+                        jornadaEsperadaMin = (horaParaMinutos(j.fim) - horaParaMinutos(j.inicio)) - j.almoco;
+                    } else {
+                        jornadaEsperadaStr = 'Fim de Semana';
+                        jornadaEsperadaMin = 0;
+                    }
+                    if (isNaN(jornadaEsperadaMin)) jornadaEsperadaMin = 0;
+                    let totalTrabalhadoMin = 0;
+                    if (dia.entrada && dia.saida) {
+                        const entrada = horaParaMinutos(dia.entrada);
+                        const saida = horaParaMinutos(dia.saida);
+                        const pausa = horaParaMinutos(dia.pausa);
+                        const retorno = horaParaMinutos(dia.retorno);
+                        const tempoPausa = (retorno > 0 && pausa > 0) ? (retorno - pausa) : 0;
+                        totalTrabalhadoMin = (saida - entrada) - tempoPausa;
+                    }
+                    const saldoDiaMin = totalTrabalhadoMin - jornadaEsperadaMin;
+                    saldoTotalMinutos += saldoDiaMin;
+                    const tr = document.createElement('tr');
+                    const saldoDiaStr = minutosParaHora(saldoDiaMin);
+                    let saldoClasse = 'status-neutro';
+                    if (saldoDiaMin > 0) saldoClasse = 'status-aprovado';
+                    if (saldoDiaMin < 0) saldoClasse = 'status-recusado';
+                    tr.innerHTML = `<td>${new Date(data + 'T12:00:00').toLocaleDateString('pt-BR')}</td><td>${jornadaEsperadaStr} (${minutosParaHora(jornadaEsperadaMin)})</td><td>${minutosParaHora(totalTrabalhadoMin)}</td><td><span class="status-badge ${saldoClasse}">${saldoDiaStr}</span></td>`;
+                    bancoHorasTableBody.appendChild(tr);
+                });
+                const saldoTotalStr = minutosParaHora(saldoTotalMinutos);
+                saldoTotalBancoEl.textContent = saldoTotalStr;
+                if (saldoTotalMinutos > 0) { saldoTotalBancoEl.className = 'saldo-positivo'; }
+                else if (saldoTotalMinutos < 0) { saldoTotalBancoEl.className = 'saldo-negativo'; }
+                else { saldoTotalBancoEl.className = ''; }
+            }
+            function habilitarBotaoPonto() {
+                btnBaterPonto.disabled = false;
+                loadingText.style.display = 'none';
+            }
+            function verificarStatusJornada() {
+                const agora = new Date();
+                const diaDaSemana = agora.getDay();
+                if (!dadosUsuario || !dadosUsuario.jornada) return;
+                let horarioFimDaJornada;
+                if (diaDaSemana === 5) {
+                    horarioFimDaJornada = dadosUsuario.jornada.fimSexta;
+                } else {
+                    horarioFimDaJornada = dadosUsuario.jornada.fim;
+                }
+                if (!horarioFimDaJornada) return;
+                const [fimHora, fimMinuto] = horarioFimDaJornada.split(':').map(Number);
+                const horarioSaida = new Date();
+                horarioSaida.setHours(fimHora, fimMinuto, 0, 0);
+                const estaEmHoraExtra = agora > horarioSaida;
+                const naoBateuSaida = timeSpans.saida.textContent === '--:--';
+                const jaEntrou = timeSpans.entrada.textContent !== '--:--';
+                if (estaEmHoraExtra && naoBateuSaida && jaEntrou) {
+                    avisoJornadaEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Seu horário de trabalho regular terminou. A partir de agora, você está em hora extra.';
+                    avisoJornadaEl.style.display = 'block';
+                } else {
+                    avisoJornadaEl.style.display = 'none';
+                }
+            }
+
+            // Event Listeners
+            btnMinhaFolha.addEventListener('click', (event) => {
+                event.preventDefault();
+                fecharTodosPaineis();
+                renderizarMinhaFolha(); // Renderiza inicial
+                minhaFolhaContainer.style.display = 'block';
+            });
+
+            // NOVO: Evento de Mudança do Filtro de Mês
+            filtroMesFolha.addEventListener('change', (event) => {
+                renderizarMinhaFolha(event.target.value);
+            });
+
+            btnFecharMinhaFolha.addEventListener('click', fecharTodosPaineis);
+            btnSolicitarAjuste.addEventListener('click', (event) => {
+                event.preventDefault();
+                fecharTodosPaineis();
+                solicitacaoContainer.style.display = 'block';
+            });
+            btnFecharSolicitacao.addEventListener('click', fecharTodosPaineis);
+            btnBancoHoras.addEventListener('click', (event) => {
+                event.preventDefault();
+                fecharTodosPaineis();
+                renderizarBancoHoras();
+                bancoHorasContainer.style.display = 'block';
+            });
+            btnFecharBancoHoras.addEventListener('click', fecharTodosPaineis);
+            formSolicitacao.addEventListener('submit', (event) => {
+                event.preventDefault();
+                const solicitacao = {
+                    id: Date.now(),
+                    emailUsuario: dadosUsuario.email,
+                    data: document.getElementById('ajuste-data').value,
+                    tipo: document.getElementById('ajuste-tipo').value,
+                    horario: document.getElementById('ajuste-horario').value,
+                    justificativa: document.getElementById('ajuste-justificativa').value,
+                    status: 'pendente'
+                };
+                let solicitacoes = JSON.parse(localStorage.getItem(storageKeySolicitacoes)) || [];
+                solicitacoes.push(solicitacao);
+                localStorage.setItem(storageKeySolicitacoes, JSON.stringify(solicitacoes));
+                alert('Solicitação de ajuste enviada com sucesso!');
+                fecharTodosPaineis();
+                formSolicitacao.reset();
+                atualizarWidgets();
+            });
+            btnBaterPonto.addEventListener('click', () => {
+                let proximoPonto = null;
+                if (timeSpans.entrada.textContent === '--:--') proximoPonto = 'entrada';
+                else if (timeSpans.pausa.textContent === '--:--') proximoPonto = 'pausa';
+                else if (timeSpans.retorno.textContent === '--:--') proximoPonto = 'retorno';
+                else if (timeSpans.saida.textContent === '--:--') proximoPonto = 'saida';
+                else { alert('Todos os seus pontos de hoje já foram registrados!'); return; }
+                btnBaterPonto.disabled = true;
+                loadingText.style.display = 'block';
+                const agora = new Date();
+                const horaFormatada = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                const dataFormatada = new Date(agora.getTime() - (agora.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+                if (!navigator.geolocation) { alert('Geolocalização não é suportada pelo seu navegador.'); habilitarBotaoPonto(); return; }
+                navigator.geolocation.getCurrentPosition(
+                    async (position) => {
+                        const latitude = position.coords.latitude;
+                        const longitude = position.coords.longitude;
+                        let localizacaoFormatada = `Lat/Long: ${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+                        try {
+                            const urlApi = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18`;
+                            const response = await fetch(urlApi);
+                            const data = await response.json();
+                            if (data && data.address) {
+                                const rua = data.address.road || data.address.pedestrian || "";
+                                const bairro = data.address.suburb || data.address.neighbourhood || "";
+                                const cidade = data.address.city || data.address.town || "";
+                                if (rua && bairro) localizacaoFormatada = `${rua}, ${bairro} - ${cidade}`;
+                                else if (data.display_name) localizacaoFormatada = data.display_name;
+                            }
+                        } catch (error) { console.error("Erro ao buscar endereço:", error); }
+                        timeSpans[proximoPonto].textContent = horaFormatada;
+                        cards[proximoPonto].classList.add('completed');
+                        const batida = { emailUsuario: dadosUsuario.email, data: dataFormatada, tipo: proximoPonto, hora: horaFormatada, local: localizacaoFormatada };
+                        let batidas = JSON.parse(localStorage.getItem(storageKeyBatidas)) || [];
+                        const jaExiste = batidas.find(b => b.data === dataFormatada && b.tipo === proximoPonto && b.emailUsuario === dadosUsuario.email);
+                        if (!jaExiste) { batidas.push(batida); localStorage.setItem(storageKeyBatidas, JSON.stringify(batidas)); }
+                        if (proximoPonto === 'pausa') { const horaRetorno = new Date(agora.getTime() + dadosUsuario.jornada.almoco * 60000); retornoPrevistoEl.textContent = `Previsto: ${horaRetorno.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`; }
+                        if (proximoPonto === 'retorno') { retornoPrevistoEl.textContent = ""; }
+                        alert(`Ponto de ${proximoPonto.toUpperCase()} registrado!\n\nHora: ${horaFormatada}\nLocalização: ${localizacaoFormatada}`);
+                        habilitarBotaoPonto();
+                        verificarStatusJornada();
+                        atualizarWidgets();
+                    },
+                    (error) => { alert('Erro ao obter localização. Ponto não registrado!'); habilitarBotaoPonto(); },
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                );
+            });
+
+            function carregarBatidasDoDia() { const agora = new Date(); const dataFormatada = new Date(agora.getTime() - (agora.getTimezoneOffset() * 60000)).toISOString().split('T')[0]; let batidas = JSON.parse(localStorage.getItem(storageKeyBatidas)) || []; const minhasBatidasHoje = batidas.filter(b => b.emailUsuario === dadosUsuario.email && b.data === dataFormatada); minhasBatidasHoje.forEach(batida => { if (timeSpans[batida.tipo]) { timeSpans[batida.tipo].textContent = batida.hora; cards[batida.tipo].classList.add('completed'); } }); }
+            function atualizarWidgets() {
+                let solicitacoes = JSON.parse(localStorage.getItem(storageKeySolicitacoes)) || [];
+                const pendentes = solicitacoes.filter(s => s.emailUsuario === dadosUsuario.email && s.status === 'pendente');
+                widgetAjustesPendentes.textContent = pendentes.length;
+                let batidas = JSON.parse(localStorage.getItem(storageKeyBatidas)) || [];
+                const minhasBatidas = batidas.filter(b => b.emailUsuario === dadosUsuario.email);
+                let saldoTotalMinutos = 0;
+                if (minhasBatidas.length > 0) { const batidasPorDia = {}; minhasBatidas.forEach(b => { if (!batidasPorDia[b.data]) batidasPorDia[b.data] = {}; batidasPorDia[b.data][b.tipo] = b.hora; }); Object.keys(batidasPorDia).forEach(data => { const dia = batidasPorDia[data]; const dataObj = new Date(data + 'T12:00:00'); const diaDaSemana = dataObj.getDay(); let jornadaEsperadaMin = 0; const j = dadosUsuario.jornada; if (diaDaSemana === 5) { jornadaEsperadaMin = (horaParaMinutos(j.fimSexta) - horaParaMinutos(j.inicioSexta)) - j.almoco; } else if (diaDaSemana !== 0 && diaDaSemana !== 6) { jornadaEsperadaMin = (horaParaMinutos(j.fim) - horaParaMinutos(j.inicio)) - j.almoco; } if (isNaN(jornadaEsperadaMin)) jornadaEsperadaMin = 0; let totalTrabalhadoMin = 0; if (dia.entrada && dia.saida) { const entrada = horaParaMinutos(dia.entrada); const saida = horaParaMinutos(dia.saida); const pausa = horaParaMinutos(dia.pausa); const retorno = horaParaMinutos(dia.retorno); const tempoPausa = (retorno > 0 && pausa > 0) ? (retorno - pausa) : 0; totalTrabalhadoMin = (saida - entrada) - tempoPausa; } saldoTotalMinutos += (totalTrabalhadoMin - jornadaEsperadaMin); }); }
+                widgetSaldoHoras.textContent = minutosParaHora(saldoTotalMinutos);
+                if (saldoTotalMinutos > 0) { widgetSaldoHoras.className = 'value saldo-positivo'; } else if (saldoTotalMinutos < 0) { widgetSaldoHoras.className = 'value saldo-negativo'; } else { widgetSaldoHoras.className = 'value'; }
+            }
+
+            carregarBatidasDoDia();
+            verificarStatusJornada();
+            atualizarWidgets();
+            setInterval(verificarStatusJornada, 60000);
+        });
+    </script>
+
+    <script>
+        (function () {
+            const toggle = document.getElementById('theme-toggle');
+            const body = document.body;
+            const themeKey = 'theme_preference_smartponto';
+            const preferenciaSalva = localStorage.getItem(themeKey);
+            if (preferenciaSalva === 'dark') { body.classList.add('dark-mode'); toggle.checked = true; }
+            toggle.addEventListener('change', function () { if (this.checked) { body.classList.add('dark-mode'); localStorage.setItem(themeKey, 'dark'); } else { body.classList.remove('dark-mode'); localStorage.setItem(themeKey, 'light'); } });
+            const btnLogout = document.getElementById('btn-logout');
+            btnLogout.addEventListener('click', (event) => { event.preventDefault(); localStorage.removeItem('sessao_usuario_atual'); window.location.href = '../login_page/index.html'; });
+        })();
+    </script>
+</body>
+
+</html>
