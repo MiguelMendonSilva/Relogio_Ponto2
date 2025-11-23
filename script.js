@@ -55,11 +55,11 @@ document.getElementById("login-form").addEventListener("submit", function (event
 
         // 5. Define o redirecionamento (CORRIGIDO)
         if (usuarioEncontrado.perfil === 'rh') {
-            redirecionarPara = "../dashboards/rh_dashboard.html"; // CORRIGIDO
+            redirecionarPara = "rh_dashboard.html"; // CORRIGIDO
         } else if (usuarioEncontrado.perfil === 'gestor') {
-            redirecionarPara = "../dashboards/gestor_dashboard.html"; // CORRIGIDO
+            redirecionarPara = "gestor_dashboard.html"; // CORRIGIDO
         } else {
-            redirecionarPara = "../dashboards/funcionario_dashboard.html"; // CORRIGIDO
+            redirecionarPara = "funcionario_dashboard.html"; // CORRIGIDO
         }
 
         window.location.href = redirecionarPara;
@@ -67,4 +67,5 @@ document.getElementById("login-form").addEventListener("submit", function (event
     } else {
         alert("Usuário ou senha incorretos");
     }
+
 });
