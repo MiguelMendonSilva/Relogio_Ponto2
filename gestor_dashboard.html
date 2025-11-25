@@ -519,7 +519,7 @@
             selectFuncionarioBanco.addEventListener('change', (event) => { renderizarBancoHorasEquipe(event.target.value); });
             btnMeuBancoHoras.addEventListener('click', (event) => { event.preventDefault(); fecharTodosPaineis(); abrirPainel(meuBancoHorasContainer); renderizarMeuBancoHoras(); });
             btnFecharMeuBancoHoras.addEventListener('click', fecharTodosPaineis);
-            btnLogout.addEventListener('click', (event) => { event.preventDefault(); localStorage.removeItem('sessao_usuario_atual'); window.location.href = '../login_page/index.html'; });
+            btnLogout.addEventListener('click', (event) => { event.preventDefault(); localStorage.removeItem('sessao_usuario_atual'); window.location.href = 'index.html'; });
             solicitacoesTableBody.addEventListener('click', (event) => { const approveButton = event.target.closest('.approve-btn'); const rejectButton = event.target.closest('.reject-btn'); if (approveButton) { atualizarStatusSolicitacao(approveButton.getAttribute('data-id'), 'aprovado'); } if (rejectButton) { atualizarStatusSolicitacao(rejectButton.getAttribute('data-id'), 'recusado'); } });
             btnBaterPonto.addEventListener('click', () => {
                 let proximoPonto = null;
@@ -633,3 +633,4 @@
 
 
 </html>
+
